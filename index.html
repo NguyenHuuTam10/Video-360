@@ -6,7 +6,6 @@
     <title>Trình Phát Video 360 Độ - GitHub Pages</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <style>
-        /* Nút bấm để kích hoạt phát video (do chính sách trình duyệt chặn tự động phát có âm thanh) */
         #play-btn {
             position: absolute;
             z-index: 999;
@@ -21,19 +20,20 @@
             border-radius: 5px;
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-family: sans-serif;
         }
     </style>
 </head>
 <body>
 
-    <button id="play-btn">Bấm để xem Video 360°</button>
+    <button id="play-btn">Bấm để xem Video 360° (Có âm thanh)</button>
 
     <a-scene>
         <a-assets>
-            <video id="video360" src="VID_20250814_101605 (1).mp4"
-                   autoplay 
+            <!-- Đã đổi tên file thành video360.mp4 và bỏ autoplay để tránh xung đột -->
+            <video id="video360" src="video360.mp4"
                    loop 
-                   muted 
+                   preload="auto"
                    playsinline
                    webkit-playsinline
                    crossorigin="anonymous">
@@ -46,16 +46,24 @@
     </a-scene>
 
     <script>
-        // Xử lý sự kiện click để phát video và ẩn nút bấm
         const playBtn = document.getElementById('play-btn');
         const video = document.getElementById('video360');
 
         playBtn.addEventListener('click', function() {
-            video.play();
-            video.muted = false; // Bật lại âm thanh sau khi người dùng tương tác
-            playBtn.style.display = 'none'; // Ẩn nút đi
+            // Mở âm thanh TRƯỚC khi bấm phát để chiều lòng trình duyệt Safari/iOS
+            video.muted = false; 
+            
+            video.play().then(() => {
+                // Chỉ ẩn nút bấm khi video đã chắc chắn phát thành công
+                playBtn.style.display = 'none';
+            }).catch(error => {
+                console.error("Trình duyệt chặn phát video: ", error);
+                // Nếu bị lỗi, thử phát lại ở chế độ tắt tiếng như phương án dự phòng
+                video.muted = true;
+                video.play();
+                playBtn.innerText = "Lỗi âm thanh - Bấm để xem không tiếng";
+            });
         });
     </script>
 </body>
 </html>
-
