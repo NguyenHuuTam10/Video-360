@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trình Phát Video 360 Độ - GitHub Pages</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-stereo-component@0.5.0/dist/aframe-stereo-component.min.js"></script>
     <style>
         #play-btn {
             position: absolute;
@@ -28,9 +29,8 @@
 
     <button id="play-btn">Bấm để xem Video 360° (Có âm thanh)</button>
 
-    <a-scene>
+    <a-scene stereo>
         <a-assets>
-            <!-- Đã đổi tên file thành video360.mp4 và bỏ autoplay để tránh xung đột -->
             <video id="video360" src="video360.mp4"
                    loop 
                    preload="auto"
@@ -40,13 +40,9 @@
             </video>
         </a-assets>
 
-        <a-entity geometry="primitive: sphere; radius: 500; segmentsWidth: 64; segmentsHeight: 64"
-          material="shader: flat; src: #video360; side: back"
-          scale="-1 1 1"
-          rotation="0 -90 0">
-</a-entity>
+        <a-videosphere src="#video360" rotation="0 -90 0" stereo="mode: top; eye: left"></a-videosphere>
 
-        <a-entity camera look-controls></a-entity>
+        <a-entity camera look-controls stereocam="eye: left;"></a-entity>
     </a-scene>
 
     <script>
@@ -54,15 +50,11 @@
         const video = document.getElementById('video360');
 
         playBtn.addEventListener('click', function() {
-            // Mở âm thanh TRƯỚC khi bấm phát để chiều lòng trình duyệt Safari/iOS
             video.muted = false; 
-            
             video.play().then(() => {
-                // Chỉ ẩn nút bấm khi video đã chắc chắn phát thành công
                 playBtn.style.display = 'none';
             }).catch(error => {
                 console.error("Trình duyệt chặn phát video: ", error);
-                // Nếu bị lỗi, thử phát lại ở chế độ tắt tiếng như phương án dự phòng
                 video.muted = true;
                 video.play();
                 playBtn.innerText = "Lỗi âm thanh - Bấm để xem không tiếng";
